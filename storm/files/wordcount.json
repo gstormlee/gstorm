@@ -1,0 +1,7 @@
+{"name":"wordcount",
+"start":"SentenceSpout",
+"Spout":[{"name":"SentenceSpout","num":1, "grouping":"ShuffleGrouping", "next":"WordSplitBolt", "ntype":"Spout", "field":"null"}],
+"WordSplitBolt":{"num":3, "grouping":"FieldGrouping", "next":"WordCountBolt", "ntype":"bolt", "field":"Word"},
+"WordCountBolt":{"num":3, "grouping":"null", "next":"end", "ntype":"bolt", "field":"null"},
+"acker":{"name":"AckerBolt", "num":3, "grouping":"null", "ntype":"acker", "next":"end", "field":"null"}
+}

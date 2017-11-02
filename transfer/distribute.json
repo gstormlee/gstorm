@@ -1,0 +1,6 @@
+{"name":"wordcount",
+"spouts":[{"name":"SentenceSpaut","num":1,
+    "mastergrouping":{"next":["SentenceSplit","SentenceCount"],"type":"fieldgrouping","filed": "sentence"},  
+    "groupings":[{"next":"SentenceSplit","type":"ShuffleGrouping", "field":"null"},{"next":"WordSplt", "type":"ShuffleGrouping", "field":"null"}]
+    }]
+}
