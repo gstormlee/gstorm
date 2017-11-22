@@ -1,0 +1,19 @@
+
+
+[[spouts]]
+name="SentenceSpaut"
+num = 1
+[spouts.mastergrouping]
+next =["SentenceSplit","SentenceCount"]
+type = "AllMasterGrouping"
+field = "null"
+[[spouts.groupings]]
+next = "SenteceSplit"
+type = "ShuffleGrouping"
+field = "null"
+[[spouts.groupings]]
+next="WordSplt" 
+type="ShuffleGrouping"
+field="null"
+[[spouts]]
+

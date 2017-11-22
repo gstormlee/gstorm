@@ -8,9 +8,7 @@ import (
 	"sync"
 
 	"github.com/gstormlee/gstorm/core/etcd"
-
-	"github.com/gstormlee/gstorm/core/data"
-
+	"github.com/gstormlee/gstorm/core/utils"
 	"github.com/smallnest/rpcx"
 )
 
@@ -37,7 +35,7 @@ func (srv *Server) ListenAndServe(etcdaddr string) {
 	fmt.Println(srv.Server)
 
 	srv.Server.RegisterName("FileSession", &FileSession{server: srv, session: session})
-	ip, err := data.GetLocalIP()
+	ip, err := utils.GetLocalIP()
 	if err == nil {
 		addr := ip + ":8972"
 		etcd := etcd.NewClient(etcdaddr)

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gstormlee/gstorm/core/topology"
-
 	"github.com/spf13/cobra"
 )
 
@@ -32,17 +31,14 @@ func NewStartCommand() *cobra.Command {
 // configCommand func
 func startCommand(cmd *cobra.Command, args []string) {
 	storm := GetStorm()
-	//gstorm := topoelogy.GetGstorm()
-	//gstorm.Init(storm.Name, storm.TopologyName, storm.EtcdClient)
 
 	t := topology.NewTopology(storm.Name, storm.TopologyName, storm.EtcdClient)
 
 	storm.Builders[storm.TopologyName] = t
 	f := &Factory{}
 	t.Register(f)
-	topology.Distribute(storm.TopologyName, t)
+	t.Start(storm.TopologyName)
 	ch := make(chan int)
 	a := <-ch
 	fmt.Println(a)
-	//var _ topology.ISpout = new(SentenceSpout)
 }

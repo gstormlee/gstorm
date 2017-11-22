@@ -1,15 +1,8 @@
 package test
 
-import (
-	"testing"
-	"time"
-
-	"github.com/gstormlee/gstorm/core/topology"
-
-	"github.com/gstormlee/gstorm/core/tuple"
-)
-
+/*
 func TestAcker(t *testing.T) {
+	t.Skip()
 	reciever := topology.NewAckerReciever("127.0.0.1:8091")
 	//server := topology.NewAckerServer("127.0.0.1:8091")
 	inchan := make(chan tuple.IID, 10)
@@ -24,7 +17,7 @@ func TestAcker(t *testing.T) {
 	d := topology.NewAcker("1", 10)
 	sender.Send(d)
 }
-
+*/
 /*
 func TestRpc(t *testing.T) {
 	server := rpcx.NewServer()

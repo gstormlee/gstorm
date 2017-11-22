@@ -53,6 +53,7 @@ func (c *Client) Send(data tuple.IID) {
 	} else if d2, ok2 := data.(*tuple.NsqType); ok2 {
 		c.Client.Call(context.Background(), "Queue.PushNsq", d2, &r)
 	}
+
 }
 
 // Dial func

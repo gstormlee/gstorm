@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/gstormlee/gstorm/core/topology"
-
 	"github.com/gstormlee/gstorm/core/tuple"
 )
 

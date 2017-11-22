@@ -8,9 +8,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/gstormlee/gstorm/core/tuple"
-
 	"github.com/gstormlee/gstorm/core/topology"
+	"github.com/gstormlee/gstorm/core/tuple"
 )
 
 // WordCountBolt struct
@@ -45,6 +44,7 @@ func NewWordCountBolt(name, node string) *WordCountBolt {
 	b := &WordCountBolt{}
 
 	bolt := topology.NewBolt(name, node)
+
 	b.Bolt = *bolt
 	return b
 }

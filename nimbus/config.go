@@ -3,12 +3,11 @@ package main
 import (
 	"errors"
 
-	"github.com/gstormlee/gstorm/transfer"
-
-	"github.com/gstormlee/gstorm/nimbus/distribute"
-
 	"io"
 	"io/ioutil"
+
+	"github.com/gstormlee/gstorm/nimbus/distribute"
+	"github.com/gstormlee/gstorm/transfer"
 
 	"github.com/spf13/cobra"
 )
@@ -31,7 +30,7 @@ func NewConfigCommand() *cobra.Command {
 func configCommand(cmd *cobra.Command, args []string) {
 
 	//go
-	startServer()
+	StartServer()
 }
 
 func argOrStdin(args []string, stdin io.Reader, i int) (string, error) {
@@ -45,7 +44,18 @@ func argOrStdin(args []string, stdin io.Reader, i int) (string, error) {
 	return string(bytes), nil
 }
 
-func startServer() {
+// WaitDistribute func
+func WaitDistribute() {
+	for {
+		name := <-distribute.WaitChanel
+		go distribute.ReadTopology(name)
+	}
+}
+
+func StartServer() {
+	distribute.WaitChanel = make(chan string)
+	go WaitDistribute()
+	// WaitDistribute()
 	data := distribute.GetInstance()
 	key := "/nimbus/clients"
 	data.EtcdClient.DeleteWithPreFix(key)

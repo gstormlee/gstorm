@@ -17,8 +17,8 @@ type IHandle interface {
 	Emmitter(data tuple.IID)
 	GenerateID() string
 	GetInchan() chan tuple.IID
-	SetGrouping(g group.IGrouping)
-	GetGrouping() group.IGrouping
+	SetMasterGrouping(g group.IMasterGrouping)
+	GetMasterGrouping() group.IMasterGrouping
 	SetSerial(serial int)
 	GetSerial() int
 	SetAddr(addr string)
@@ -27,10 +27,10 @@ type IHandle interface {
 
 // Handle struct
 type Handle struct {
-	Name   string
-	Serial int
-
-	Grouping       group.IGrouping
+	Name           string
+	Serial         int
+	MasterGrouping group.IMasterGrouping
+	//Grouping       group.IGrouping
 	Base           int
 	Lock           sync.Mutex
 	Inchan         chan tuple.IID
@@ -74,8 +74,9 @@ func (h *Handle) Emmitter(data tuple.IID) {
 		h.TupleCollector.SetLast(data.GetID(), data1.GetCurrentID())
 		id := h.GenerateID()
 		data1.SetCurrentID(id)
-		if h.Grouping != nil {
-			h.Grouping.Tuple(data1)
+		if h.MasterGrouping != nil {
+			
+			h.MasterGrouping.Tuple(data1)
 		}
 	} else {
 		fmt.Println("data to IData error")
@@ -93,13 +94,13 @@ func (h *Handle) GetInchan() chan tuple.IID {
 }
 
 // SetGrouping func
-func (h *Handle) SetGrouping(g group.IGrouping) {
-	h.Grouping = g
+func (h *Handle) SetMasterGrouping(g group.IMasterGrouping) {
+	h.MasterGrouping = g
 }
 
 // GetGrouping func
-func (h *Handle) GetGrouping() group.IGrouping {
-	return h.Grouping
+func (h *Handle) GetMasterGrouping() group.IMasterGrouping {
+	return h.MasterGrouping
 }
 
 // GetSerial func

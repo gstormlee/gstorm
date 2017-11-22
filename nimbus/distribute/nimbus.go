@@ -2,28 +2,30 @@ package distribute
 
 import (
 	"context"
+
 	"strings"
 	"sync"
 
 	"github.com/gstormlee/gstorm/core/etcd"
-
-	"github.com/gstormlee/gstorm/core/data"
+	"github.com/gstormlee/gstorm/core/utils"
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
 )
 
+// Nimbus struct
 type Nimbus struct {
 	EtcdAddr    string
 	EtcdClient  *etcd.Client
-	Supervisors *data.Set
-	Datas       map[string]*TopologyData
+	Supervisors *utils.Set
+	Datas       map[string]StormData
 }
 
 var (
-	Instance *Nimbus
-	once     sync.Once
-	EtcdAddr string
+	Instance   *Nimbus
+	once       sync.Once
+	EtcdAddr   string
+	WaitChanel chan string
 )
 
 // GetInstance func
@@ -31,8 +33,8 @@ func GetInstance() *Nimbus {
 	once.Do(func() {
 		Instance = &Nimbus{EtcdAddr: EtcdAddr}
 		Instance.EtcdClient = etcd.NewClient(Instance.EtcdAddr)
-		Instance.Supervisors = data.New()
-		Instance.Datas = make(map[string]*TopologyData)
+		Instance.Supervisors = utils.NewSet()
+		Instance.Datas = make(map[string]StormData)
 	})
 	return Instance
 }

@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/gstormlee/gstorm/nimbus/distribute"
+	"github.com/gstormlee/gstorm/nimbus/ready"
 )
 
 // Request struct
@@ -88,7 +88,7 @@ func (f *FileSession) UploadFinish(upload UploadFiles, res *Response) error {
 	stormFile := upload.StormFile
 	Json := path.Join(f.server.TopologyDir, JsonFile)
 	storm := path.Join(f.server.TopologyDir, stormFile)
-	distribute.ReadJSON(Json, storm)
+	ready.OnFileUploadReady(Json, storm)
 	return nil
 }
 

@@ -1,0 +1,34 @@
+{
+  "name": "wordcount",
+  "spouts": [
+    {
+      "name": "SentenceSpaut",
+      "num": 1,
+      "mastergrouping": {
+        "next": ["SentenceSplitBolt", "SentenceCountBolt"],
+        "type": "AllMasterGrouping",
+        "groupings": [
+          {
+            "next": "SentenceSplitBolt",
+            "type": "ShuffleGrouping"
+          },
+          { "next": "SentenceCountBolt", "type": "ShuffleGrouping"}
+        ]
+      } 
+    }
+  ], 
+  "bolts":[
+    {"name":"SentenceSplitBolt",
+      "num":1,
+      "mastergrouping":{
+        "next":["WordCountBolt"],
+        "type":"NullMasterGrouping",
+        "groupings":[{"next":"WordCount", "type":"FieldGrouping", "field":"Word"}]        
+      }},
+      {
+        "name":"WordCountBolt",
+        "num":1
+      }] 
+    
+  
+}

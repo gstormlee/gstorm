@@ -7,6 +7,11 @@ type Queue struct {
 	outchan chan tuple.IID
 }
 
+type Message struct {
+	DataType string
+	Data     string
+}
+
 func NewQueue(outchan chan tuple.IID) *Queue {
 	queue := &Queue{}
 	queue.outchan = outchan

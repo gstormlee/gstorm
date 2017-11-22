@@ -21,7 +21,7 @@ func NewFieldGrouping(field string) *FiledGrouping {
 
 // Prepare func
 func (g *FiledGrouping) Prepare(out []chan tuple.IID) {
-	g.Grouping.outchan = out
+	g.Grouping.OutChan = out
 }
 
 // Run func
@@ -36,9 +36,10 @@ func (g *FiledGrouping) Run() {
 		for _, c := range str {
 			sum += int(c)
 		}
-		idx := sum % len(g.outchan)
 
-		g.outchan[idx] <- data
+		idx := sum % len(g.OutChan)
+
+		g.OutChan[idx] <- data
 	}
 }
 

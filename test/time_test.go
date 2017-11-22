@@ -7,6 +7,7 @@ import (
 )
 
 func TestTimer(t *testing.T) {
+	t.Skip()
 	go Ontimer()
 	time.Sleep(time.Second * 30)
 }

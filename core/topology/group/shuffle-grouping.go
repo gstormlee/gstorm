@@ -8,13 +8,13 @@ import (
 
 // ShuffleGrouping struct
 
-type ShuffleGtouping struct {
+type ShuffleGrouping struct {
 	Grouping
 }
 
 // NewShuffleGrouping func
-func NewShuffleGrouping() *ShuffleGtouping {
-	out := &ShuffleGtouping{}
+func NewShuffleGrouping() *ShuffleGrouping {
+	out := &ShuffleGrouping{}
 	g := NewGrouping()
 	out.Grouping = *g
 	//out.inchan = make(chan tuple.IID, 10)
@@ -22,25 +22,25 @@ func NewShuffleGrouping() *ShuffleGtouping {
 }
 
 // Prepare func
-func (g *ShuffleGtouping) Prepare(out []chan tuple.IID) {
-	g.Grouping.outchan = out
+func (g *ShuffleGrouping) Prepare(out []chan tuple.IID) {
+	g.Grouping.OutChan = out
 }
 
 // Run func
-func (g *ShuffleGtouping) Run() {
+func (g *ShuffleGrouping) Run() {
 	for {
 		data := <-g.inChan
-		idx := rand.Int31n(int32(len(g.outchan)))
-		g.outchan[idx] <- data
+		idx := rand.Int31n(int32(len(g.OutChan)))
+		g.OutChan[idx] <- data
 	}
 }
 
 // Launch func
-func (g *ShuffleGtouping) Launch() {
+func (g *ShuffleGrouping) Launch() {
 	go g.Run()
 }
 
 // Tuple func
-func (g *ShuffleGtouping) Tuple(data tuple.IID) {
+func (g *ShuffleGrouping) Tuple(data tuple.IID) {
 	g.inChan <- data
 }

@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
-	"github.com/gstormlee/gstorm/core/tuple"
-
 	"github.com/gstormlee/gstorm/core/topology"
+	"github.com/gstormlee/gstorm/core/tuple"
 )
 
 // WordSplitBolt struct

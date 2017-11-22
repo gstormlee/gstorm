@@ -1,6 +1,7 @@
 package group
 
 import (
+
 	"github.com/gstormlee/gstorm/core/tuple"
 )
 
@@ -15,7 +16,7 @@ type IGrouping interface {
 // Grouping struct
 type Grouping struct {
 	inChan  chan tuple.IID
-	outchan []chan tuple.IID
+	OutChan []chan tuple.IID
 }
 
 // NewGrouping func
@@ -27,7 +28,7 @@ func NewGrouping() *Grouping {
 
 // Prepare func
 func (g *Grouping) Prepare(out []chan tuple.IID) {
-	g.outchan = out
+	g.OutChan = out
 }
 
 // Run func

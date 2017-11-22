@@ -3,15 +3,15 @@ package main
 import (
 	"fmt"
 
-	"github.com/gstormlee/gstorm/core/topology/group"
-
 	"github.com/gstormlee/gstorm/core/topology"
+	"github.com/gstormlee/gstorm/core/topology/group"
 )
 
+// Factory struct
 type Factory struct {
 }
 
-// Factory func
+// CreateNode func
 func (f *Factory) CreateNode(node, server, name string) topology.IHandle {
 	switch node {
 	case "WordCountBolt":
@@ -26,6 +26,13 @@ func (f *Factory) CreateNode(node, server, name string) topology.IHandle {
 		return nil
 	}
 }
-func (f *Factory) CreateGrouping(name string, field string) group.IGrouping {
+
+// CreateGrouping func
+func (f *Factory) CreateGrouping(name, field string) group.IGrouping {
+	return nil
+}
+
+// CreateMasterGrouping func
+func (f *Factory) CreateMasterGrouping(name, field string) group.IMasterGrouping {
 	return nil
 }

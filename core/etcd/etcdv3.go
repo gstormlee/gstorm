@@ -25,8 +25,7 @@ func NewClient(addr string) *Client {
 		DialTimeout: etcdTimeout,
 	})
 	if err != nil {
-		fmt.Println("error")
-		fmt.Println(err)
+		fmt.Println("error", err)
 		return nil
 	}
 	c := new(Client)

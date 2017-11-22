@@ -59,7 +59,7 @@ func StartWorker(name string) {
 	super := GetInstance()
 	fmt.Println("etcd addr :", super.EtcdAddr)
 	vals, err := super.EtcdClient.Get(key)
-	if err == nil {
+	if err == nil && len(vals) > 0 {
 		addrs, err1 := super.EtcdClient.Get("/nimbus/addr")
 
 		if err1 == nil {
