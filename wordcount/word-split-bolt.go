@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/gstormlee/gstorm/core/topology"
@@ -24,7 +23,7 @@ func NewWordSplitBolt(name, node string) *WordSplitBolt {
 
 // Execute func
 func (w *WordSplitBolt) Execute(data tuple.IID) {
-	d, ok := data.(*tuple.SentenceValue)
+	d, ok := data.(*SentenceValue)
 	if ok {
 		a := strings.Split(d.Sentence, " ")
 		for _, word := range a {
@@ -36,7 +35,7 @@ func (w *WordSplitBolt) Execute(data tuple.IID) {
 				}
 			}
 			if isword {
-				word1 := &tuple.WordValue{}
+				word1 := &WordValue{}
 				word1.Word = word
 				word1.ID = tuple.ID{}
 				word1.ID.ID = data.GetID()

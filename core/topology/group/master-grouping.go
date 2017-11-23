@@ -39,7 +39,6 @@ func (mg MasterGrouping) Run() {
 		msg := <-mg.InChan
 		fmt.Println(reflect.TypeOf(mg.Sub))
 		if val, ok := mg.Sub.(IMasterGrouping); ok {
-			fmt.Println("okokok", reflect.TypeOf(mg.Sub), reflect.TypeOf(val))
 			val.GroupingMessage(msg)
 		} else {
 			fmt.Println("mg.Sub can't convert to IMasterGrouping")

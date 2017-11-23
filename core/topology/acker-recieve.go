@@ -1,6 +1,7 @@
 package topology
 
 import (
+	"github.com/gstormlee/gstorm/core/send"
 	"github.com/gstormlee/gstorm/core/tuple"
 )
 
@@ -19,6 +20,6 @@ func NewAckerReciever(addr string) *AckerReciever {
 }
 
 // ListenAndServe func
-func (r *AckerReciever) ListenAndServe(inchan chan tuple.IID) {
-	r.Server.ListenAndServe(inchan)
+func (r *AckerReciever) ListenAndServe(inchan chan tuple.IID, f send.IMessageFactory) {
+	r.Server.ListenAndServe(inchan, f)
 }

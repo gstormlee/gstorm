@@ -26,7 +26,7 @@ func (w *WordCountBolt) Prepare() {
 
 // Execute func
 func (w *WordCountBolt) Execute(data tuple.IID) {
-	d, ok := data.(*tuple.WordValue)
+	d, ok := data.(*WordValue)
 	if ok {
 		_, ok := w.words[d.Word]
 		if !ok {

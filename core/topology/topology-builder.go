@@ -104,6 +104,7 @@ type Topology struct {
 	AllNodes       map[string]*Node
 	AckerWait      chan int
 	WatchNodeChan  chan string
+	MessageFactory send.IMessageFactory
 }
 
 // NewTopology func
@@ -120,7 +121,6 @@ func NewTopology(serverName, topologyName string, etcdClient *etcd.Client) *Topo
 
 // Start func
 func (t *Topology) Start(name string) {
-	fmt.Println("Start distribute builder")
 	var s *Topology
 	fmt.Println("storm", s)
 
@@ -140,7 +140,6 @@ func (t *Topology) Start(name string) {
 	fmt.Println("serial", serial)
 
 	key := "/distribute/" + t.TopologyName + "/" + t.ServerName
-	fmt.Println("distribute", key)
 
 	vals, err := t.EtcdClient.GetSortedPrefix(key)
 	if err != nil {
@@ -198,13 +197,11 @@ func (t *Topology) Start(name string) {
 	// }
 	if len(t.Ackers) > 0 {
 		go t.WatchAcker(t.Ackers[0])
-		fmt.Println("watch acker !!!")
 		for _, v := range t.Ackers {
 			fmt.Printf("create node acker = %v\n", v)
 			t.CreateNode(v)
 		}
-		a := <-t.AckerWait
-		fmt.Println("create acker end", a)
+		<-t.AckerWait
 	}
 	go t.WatchAll()
 	t.CreateEndNode()
@@ -237,9 +234,7 @@ func (t *Topology) WatchAll() {
 		if v, ok := t.Watch.Name2Node[name]; ok {
 			for _, node := range v {
 				if t.Watch.IsReady(t.Watch.Node2Name[node]) {
-					fmt.Printf("create node begin node = %v, node.Name = %s, node.NodeName = %s\n", node, node.Name, node.NodeName)
 					t.CreateNode(node)
-					fmt.Printf("creante node end node.Name =%s\n", node.Name)
 				}
 			}
 		}
@@ -290,17 +285,13 @@ func (t *Topology) GetParallelNumber(name string, node string) (int, error) {
 func (t *Topology) WatchAcker(node *Node) {
 	num := node.Num
 	go t.WatchKey(node.Name, num)
-	fmt.Println("watch begin")
 	name := <-t.WatchNodeChan
-	fmt.Println("watch end")
 	t.CreateNextChan(name)
-	fmt.Println("want to create Acker grouping ")
 	t.CreateAckerGrouping(name)
 }
 
 // CreateAckerGrouping func
 func (t *Topology) CreateAckerGrouping(next string) {
-	fmt.Println("create acker group")
 	gd := GroupingData{}
 	gd.Field = "ID"
 	gd.GType = "FieldGrouping"
@@ -325,7 +316,6 @@ func (t *Topology) WatchNext(topology, next string) {
 
 // WatchKey func
 func (t *Topology) WatchKey(next string, num int) {
-	fmt.Printf("watch key next =%s, num %d \n", next, num)
 	key := "/real/" + t.TopologyName + "/" + next + "/"
 	if t.ReadWatchKey(next, num) {
 		return
@@ -348,14 +338,11 @@ func (t *Topology) WatchKey(next string, num int) {
 
 // ReadWatchKey func
 func (t *Topology) ReadWatchKey(next string, num int) bool {
-	fmt.Printf("Read watch key next = %s, num = %d name = %s\n", next, num, t.TopologyName)
 	key := "/real/" + t.TopologyName + "/" + next + "/"
-	fmt.Printf("read watch key key = %s", key)
 	values, err := t.EtcdClient.GetSortedPrefix(key)
 	if err != nil {
 		return false
 	}
-	fmt.Printf("read watch key %s, num = %d\n", key, num)
 	if len(values) == num {
 		t.WatchNodeChan <- next
 		return true
@@ -365,20 +352,15 @@ func (t *Topology) ReadWatchKey(next string, num int) bool {
 
 // CreateNode  func
 func (t *Topology) CreateNode(node *Node) {
-	fmt.Println("create node", node.Name)
 	worker := t.Factories.CreateNodeFactory(node.Name, t.ServerName, node.NodeName)
-	fmt.Println("create node 0.1", worker)
 	if worker == nil {
 		fmt.Printf("fatal error:create node %s is nil\n", node.Name)
 	}
 	worker.SetSerial(t.Serial)
-	fmt.Println("create node 0.5")
 	t.CreatedWorkers = append(t.CreatedWorkers, worker)
-	fmt.Println("create node 1")
 	if node.NType != "acker" {
 		worker.SetSerial(t.Serial)
 	}
-	fmt.Println("create node 2")
 	if s, ok := worker.(ISpout); ok {
 		r := t.CreateAckerResultReciever(node, worker)
 		r.SetQueue(s.GetQueue())
@@ -418,7 +400,6 @@ func (t *Topology) CreateMasterGrouping(node *Node) group.IMasterGrouping {
 			return nil
 		}
 		if g != nil {
-			fmt.Println("create groupingi******************", g, n.Next)
 			mg.AddGrouping(n.Next, g)
 		} else {
 			return nil
@@ -430,7 +411,6 @@ func (t *Topology) CreateMasterGrouping(node *Node) group.IMasterGrouping {
 // CreateGrouping func
 func (t *Topology) CreateGrouping(grouping GroupingData) (group.IGrouping, error) {
 	g := t.Factories.CreateGrouping(grouping)
-	fmt.Printf("create grouping next=%s, grouping = %v\n", grouping.Next, grouping)
 	chans := t.Watch.NextChans[grouping.Next]
 	if g != nil {
 		g.Prepare(chans)
@@ -453,11 +433,10 @@ func (t *Topology) CreateReciever(worker *Node, node IHandle) {
 	if worker.NType == "acker" {
 		r = NewAckerReciever(addr)
 	} else {
-		fmt.Println("cereate reciever")
 		r = send.NewReciever(addr)
 	}
 
-	go r.ListenAndServe(node.GetInchan())
+	go r.ListenAndServe(node.GetInchan(), t.MessageFactory)
 }
 
 // CreateAckerResultReciever func

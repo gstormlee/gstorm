@@ -12,25 +12,6 @@ type IData interface {
 	SetCurrentID(strId string)
 }
 
-// SentenceValue struce
-type SentenceValue struct {
-	Sentence string
-	ID
-}
-
-type NsqType struct {
-	ID
-	Msg string
-}
-type IWordValue interface {
-	GetWord() string
-}
-
-type WordValue struct {
-	Word string
-	ID
-}
-
 // ID struct
 type ID struct {
 	ID        string
@@ -56,6 +37,7 @@ func (id *ID) GetCurrentID() string {
 	return id.CurrentID
 }
 
-func (w *WordValue) GetWord() string {
-	return w.Word
+type NsqType struct {
+	ID
+	Msg string
 }

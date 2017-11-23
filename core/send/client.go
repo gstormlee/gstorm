@@ -2,6 +2,10 @@ package send
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/gstormlee/gstorm/core/tuple"
@@ -46,13 +50,24 @@ func (c *Client) Connect() error {
 // Send func
 func (c *Client) Send(data tuple.IID) {
 	var r Replay
-	if d, ok := data.(*tuple.SentenceValue); ok {
-		c.Client.Call(context.Background(), "Queue.Push", d, &r)
-	} else if d1, ok1 := data.(*tuple.WordValue); ok1 {
-		c.Client.Call(context.Background(), "Queue.PushWord", d1, &r)
-	} else if d2, ok2 := data.(*tuple.NsqType); ok2 {
-		c.Client.Call(context.Background(), "Queue.PushNsq", d2, &r)
+
+	if b, err := json.Marshal(data); err == nil {
+		d := Message{}
+		a := strings.Split(reflect.TypeOf(data).String(), ".")
+		str := a[len(a)-1]
+		d.DataType = str
+		d.Data = string(b[:])
+		fmt.Printf("data is %v, Data = %s\n", d, d.Data)
+		err := c.Client.Call(context.Background(), "Queue.PushData", d, &r)
+		fmt.Println(err)
 	}
+	// if _, ok := data.(*tuple.SentenceValue); ok {
+
+	// } else if d1, ok1 := data.(*tuple.WordValue); ok1 {
+	// 	c.Client.Call(context.Background(), "Queue.PushWord", d1, &r)
+	// } else if d2, ok2 := data.(*tuple.NsqType); ok2 {
+	// 	c.Client.Call(context.Background(), "Queue.PushNsq", d2, &r)
+	// }
 
 }
 

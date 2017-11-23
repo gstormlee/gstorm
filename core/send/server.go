@@ -16,7 +16,7 @@ type Server struct {
 
 type IServer interface {
 	Register()
-	ListenAndServe(out chan tuple.IID)
+	ListenAndServe(out chan tuple.IID, f IMessageFactory)
 }
 
 // NewServer func
@@ -25,14 +25,15 @@ func NewServer(addr string) *Server {
 }
 
 // Register func
-func (srv *Server) Register() {
-	srv.RpcServer.RegisterName("Queue", &Queue{outchan: srv.Out})
+func (srv *Server) Register(f IMessageFactory) {
+	queue := NewQueue(srv.Out, f)
+	srv.RpcServer.RegisterName("Queue", queue)
 }
 
 // ListenAndServe func
-func (srv *Server) ListenAndServe(out chan tuple.IID) {
+func (srv *Server) ListenAndServe(out chan tuple.IID, f IMessageFactory) {
 	srv.Out = out
-	srv.Register()
+	srv.Register(f)
 	err := srv.RpcServer.Serve("tcp", srv.Addr)
 	if err != nil {
 		fmt.Println(err)

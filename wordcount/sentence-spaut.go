@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/gstormlee/gstorm/core/topology"
-	"github.com/gstormlee/gstorm/core/tuple"
 )
 
 // Sentencespout struct
@@ -37,7 +36,7 @@ func (s *Sentencespout) Open(files map[string]string) {
 		for {
 			line, err := rd.ReadString('\n') //以'\n'为结束符读入一行
 			if err == nil && len(line) != 0 {
-				l := &tuple.SentenceValue{}
+				l := &SentenceValue{}
 				l.Sentence = line
 				s.Inchan <- l
 			}

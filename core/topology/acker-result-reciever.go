@@ -24,7 +24,7 @@ func NewAckerResultReciever(addr string) *AckerResultReciever {
 
 // ListenAndServe func
 func (r *AckerResultReciever) ListenAndServe(inchan chan tuple.IID) {
-	r.Server.ListenAndServe(inchan)
+	r.Server.ListenAndServe(inchan, nil)
 }
 
 // Run func

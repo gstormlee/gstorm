@@ -33,7 +33,7 @@ func startCommand(cmd *cobra.Command, args []string) {
 	storm := GetStorm()
 
 	t := topology.NewTopology(storm.Name, storm.TopologyName, storm.EtcdClient)
-
+	t.MessageFactory = &MessageFactory{}
 	storm.Builders[storm.TopologyName] = t
 	f := &Factory{}
 	t.Register(f)

@@ -5,7 +5,7 @@ import (
 )
 
 type IReciever interface {
-	ListenAndServe(inchan chan tuple.IID)
+	ListenAndServe(inchan chan tuple.IID, f IMessageFactory)
 }
 type Reciever struct {
 	Addr   string
@@ -21,6 +21,6 @@ func NewReciever(addr string) *Reciever {
 }
 
 // ListenAndServe func
-func (r *Reciever) ListenAndServe(inchan chan tuple.IID) {
-	r.Server.ListenAndServe(inchan)
+func (r *Reciever) ListenAndServe(inchan chan tuple.IID, f IMessageFactory) {
+	r.Server.ListenAndServe(inchan, f)
 }

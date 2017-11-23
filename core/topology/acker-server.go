@@ -3,6 +3,7 @@ package topology
 import (
 	"fmt"
 
+	"github.com/gstormlee/gstorm/core/send"
 	"github.com/gstormlee/gstorm/core/tuple"
 	"github.com/smallnest/rpcx"
 )
@@ -25,7 +26,7 @@ func (srv *AckerServer) Register() {
 }
 
 // ListenAndServe func
-func (srv *AckerServer) ListenAndServe(out chan tuple.IID) {
+func (srv *AckerServer) ListenAndServe(out chan tuple.IID, f send.IMessageFactory) {
 	srv.Out = out
 	srv.Register()
 	err := srv.RpcServer.Serve("tcp", srv.Addr)
