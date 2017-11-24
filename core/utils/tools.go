@@ -1,12 +1,14 @@
 package utils
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
 	"strconv"
 	"sync"
 
+	"github.com/coreos/etcd/clientv3/concurrency"
 	"github.com/gstormlee/gstorm/core/etcd"
 )
 
@@ -38,6 +40,7 @@ type Port struct {
 	locks map[string]*sync.Mutex
 }
 
+// GetSingletonPort func
 func GetSingletonPort() *Port {
 	portonce.Do(func() {
 		instance = &Port{}
@@ -45,29 +48,45 @@ func GetSingletonPort() *Port {
 	})
 	return instance
 }
+
+// GetLocalPort func
 func (p *Port) GetLocalPort(name string, client *etcd.Client) (int, error) {
-	key := name + "/" + "port"
+	s1, err := concurrency.NewSession(client.Etcd)
 
-	_, ok := p.locks[name]
-	if !ok {
-		p.locks[name] = new(sync.Mutex)
-	}
-	p.locks[name].Lock()
-	defer p.locks[name].Unlock()
-
-	values, err := client.Get(key)
+	defer s1.Close()
 	if err != nil {
 		fmt.Println(err)
 		return 0, err
 	}
-	if len(values) == 0 {
-		client.Set(key, "10000")
-		return 10000, nil
+	m1 := concurrency.NewMutex(s1, "/"+name+"-lock/")
+	if err1 := m1.Lock(context.TODO()); err1 != nil {
+		fmt.Println(err1)
+		return 0, err1
 	}
-	//svalue := values[0]
-	a, err := strconv.Atoi(values[0])
-	a++
-	str := strconv.FormatInt(int64(a), 10)
-	client.Set(key, str)
-	return a, nil
+	defer m1.Unlock(context.TODO())
+	key := name + "/" + "port"
+	vals, err2 := client.Get(key)
+	if err2 != nil {
+		fmt.Println(err2)
+		return 0, err2
+	}
+
+	if len(vals) == 1 {
+		serial, err3 := strconv.Atoi(vals[0])
+		if err3 != nil {
+			return 0, err3
+		}
+		fmt.Printf("3333333333pre port%d\n", serial)
+		serial++
+		str := strconv.Itoa(serial)
+		fmt.Printf("444444444set addr%s", str)
+		client.Set(key, str)
+		fmt.Println("22222222222get addr =", str, serial)
+		return serial, nil
+	} else if len(vals) == 0 {
+		client.Set(key, "10001")
+		fmt.Println("11111111111111get addr = ", "10001")
+		return 10001, nil
+	}
+	return 0, errors.New("can not found key")
 }

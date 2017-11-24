@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/coreos/etcd/clientv3"
@@ -25,8 +26,8 @@ func NewClient(addr string) *Client {
 		DialTimeout: etcdTimeout,
 	})
 	if err != nil {
-		fmt.Println("error", err)
-		return nil
+		fmt.Println("etcd error", err)
+		os.Exit(1)
 	}
 	c := new(Client)
 	c.Etcd = cli
@@ -118,7 +119,6 @@ func (c *Client) Grant(key, value string, t int) error {
 		return err
 	}
 
-	// after 5 seconds, the key 'foo' will be removed
 	_, err = c.Etcd.Put(context.TODO(), key, value, clientv3.WithLease(resp.ID))
 	if err != nil {
 		log.Fatal(err)

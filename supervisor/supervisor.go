@@ -46,7 +46,6 @@ func GetInstance() *Supervisor {
 func Register() {
 	data := GetInstance()
 	key := "/nimbus/clients/" + data.Name
-	fmt.Println(key)
 	data.EtcdClient.Grant(key, "100", 3)
 	go Refresh()
 }

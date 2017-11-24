@@ -45,6 +45,7 @@ func (t *Topology) Watch() {
 			case mvccpb.PUT:
 				fmt.Println("start worker", key)
 				go StartWorker(key)
+				break
 			case mvccpb.DELETE:
 			}
 		}

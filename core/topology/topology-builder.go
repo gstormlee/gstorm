@@ -317,9 +317,9 @@ func (t *Topology) WatchNext(topology, next string) {
 // WatchKey func
 func (t *Topology) WatchKey(next string, num int) {
 	key := "/real/" + t.TopologyName + "/" + next + "/"
-	if t.ReadWatchKey(next, num) {
-		return
-	}
+	// if t.ReadWatchKey(next, num) {
+	// 	return
+	// }
 	rch := t.EtcdClient.Etcd.Watch(context.Background(), key, clientv3.WithPrefix())
 	for wresp := range rch {
 		for _, ev := range wresp.Events {
