@@ -2,24 +2,22 @@ package topology
 
 import (
 	"fmt"
-	"reflect"
 	"strconv"
 
-	"github.com/gstormlee/gstorm/core/tuple"
-
 	"github.com/gstormlee/gstorm/core/topology/group"
+	"github.com/gstormlee/gstorm/core/tuple"
 )
 
 // TupleData struct
 type TupleData struct {
-	LastID string
+	LastID []string
 	Result bool
 }
 
 // NewTupleData func
 func NewTupleData(last string, result bool) *TupleData {
 	t := &TupleData{}
-	t.LastID = last
+	t.LastID = append(t.LastID, last)
 	t.Result = result
 	return t
 }
@@ -49,9 +47,6 @@ func (c *Collector) SetResult(id string, result bool) {
 	if ok {
 		v.Result = result
 		c.TupleDatas[id] = v
-	} else {
-		t := NewTupleData("", result)
-		c.TupleDatas[id] = t
 	}
 }
 
@@ -59,11 +54,22 @@ func (c *Collector) SetResult(id string, result bool) {
 func (c *Collector) SetLast(id, last string) {
 	v, ok := c.TupleDatas[id]
 	if ok {
-		v.LastID = last
+		fmt.Printf("before set lastid =%s, %v, last = %s\n", id, v, last)
+		has := false
+		for _, id := range v.LastID {
+			if id == last {
+				has = true
+				break
+			}
+		}
+
+		if !has {
+			v.LastID = append(v.LastID, last)
+		}
 		c.TupleDatas[id] = v
 	} else {
-		t := NewTupleData(last, false)
-		c.TupleDatas[id] = t
+		d := NewTupleData(last, false)
+		c.TupleDatas[id] = d
 	}
 }
 
@@ -74,40 +80,51 @@ func (c *Collector) SetAddr(addr string) {
 
 // Acker func
 func (c *Collector) Acker(data tuple.IID) {
-
 	var acker tuple.IID
 	if data1, ok := data.(tuple.IData); ok {
-
 		if v, ok := c.TupleDatas[data.GetID()]; ok {
-			if v.LastID == "" {
+			if len(v.LastID) == 0 {
 				acker = NewAckerBegin(data.GetID(), c.Addr, data1.GetCurrentID())
 			} else {
 				if !v.Result {
-					i, err := c.Exclusive(data1.GetCurrentID(), v.LastID)
-					if err == nil {
-						acker = NewAcker(data.GetID(), i)
+					d, err := strconv.ParseInt(data1.GetCurrentID(), 10, 64)
+					fmt.Printf("data= %v, v = %v, current = %d\n", data, v, d)
+					if err != nil {
+						fmt.Println(err)
 					}
+					e := false
+					for _, id := range v.LastID {
+						if d, err = c.Exclusive(d, id); err != nil {
+							fmt.Println(err)
+							e = true
+							break
+						}
+					}
+
+					if !e {
+						acker = NewAcker(data.GetID(), d)
+					}
+
 				} else {
 					acker = NewAckerResult(data.GetID(), Failed)
 				}
 			}
+
+		} else {
+			acker = NewAckerBegin(data.GetID(), c.Addr, data1.GetCurrentID())
+			fmt.Printf("collector id = [%s], ackerbegin %v, data= %v\n", data.GetID(), acker, data)
 		}
 	}
 	delete(c.TupleDatas, data.GetID())
-	fmt.Println("collector acker, tuple", acker, reflect.TypeOf(acker), reflect.TypeOf(data))
-
+	fmt.Printf("collector after delete %v, %v\n", c.TupleDatas, acker)
 	c.Grouping.Tuple(acker)
 }
 
 // Exclusive func
-func (c *Collector) Exclusive(current, last string) (int64, error) {
-	i, err := strconv.ParseInt(current, 10, 64)
-	if err != nil {
-		return 0, nil
-	}
+func (c *Collector) Exclusive(current int64, last string) (int64, error) {
 	i1, err1 := strconv.ParseInt(last, 10, 64)
 	if err1 != nil {
 		return 0, nil
 	}
-	return i ^ i1, nil
+	return current ^ i1, nil
 }

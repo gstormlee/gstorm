@@ -1,7 +1,6 @@
 package group
 
 import (
-
 	"github.com/gstormlee/gstorm/core/tuple"
 )
 
@@ -42,6 +41,5 @@ func (g *Grouping) Launch() {
 
 // Tuple func
 func (g *Grouping) Tuple(data tuple.IID) {
-
 	g.inChan <- data
 }

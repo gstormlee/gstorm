@@ -15,28 +15,49 @@ import (
 type IHandle interface {
 	GetName() string
 	Emmitter(data tuple.IID)
-	GenerateID() string
 	GetInchan() chan tuple.IID
 	SetMasterGrouping(g group.IMasterGrouping)
 	GetMasterGrouping() group.IMasterGrouping
-	SetSerial(serial int)
-	GetSerial() int
 	SetAddr(addr string)
 	SetAckerGrouping(g group.IGrouping)
+}
+
+var once sync.Once
+
+type GlobalGenerator struct {
+	Lock   sync.Mutex
+	Base   int
+	Time   string
+	Serial int
+}
+
+var generator *GlobalGenerator
+
+func GetGlobalGenerator() *GlobalGenerator {
+	once.Do(func() {
+		generator = &GlobalGenerator{}
+	})
+	return generator
+}
+
+// GetSerial func
+func (g *GlobalGenerator) GetSerial() int {
+	return g.Serial
+}
+
+// SetSerial func
+func (g *GlobalGenerator) SetSerial(serial int) {
+	g.Serial = serial
 }
 
 // Handle struct
 type Handle struct {
 	Name           string
-	Serial         int
 	MasterGrouping group.IMasterGrouping
-	//Grouping       group.IGrouping
 	Base           int
-	Lock           sync.Mutex
 	Inchan         chan tuple.IID
 	Addr           string
 	TupleCollector *Collector
-	Time           string
 }
 
 // NewHandle func
@@ -49,33 +70,31 @@ func NewHandle(name string) *Handle {
 }
 
 // GenerateID Func
-func (h *Handle) GenerateID() string {
-	h.Lock.Lock()
-	str := strconv.Itoa(h.GetSerial())
-	if h.Base == 0 || h.Base == 9999 {
+func (g *GlobalGenerator) GenerateID() string {
+	g.Lock.Lock()
+	str := strconv.Itoa(g.GetSerial())
+	if g.Base == 0 || g.Base == 9999 {
 		t := time.Now().Unix()
-		fmt.Println(t)
-		str += strconv.FormatInt(t, 10)
-		h.Time = str
-	} else {
-		str += h.Time
+		g.Time = strconv.FormatInt(t, 10)
 	}
-	h.Base++ //i = AddInt32(i, 1)
-	str1 := fmt.Sprintf("%04d", h.Base)
+	str += g.Time
+	g.Base++ //i = AddInt32(i, 1)
+	str1 := fmt.Sprintf("%04d", g.Base)
 	str += str1
-	h.Lock.Unlock()
+	g.Lock.Unlock()
 	return str
 }
 
 // Emmitter func
 func (h *Handle) Emmitter(data tuple.IID) {
+	gen := GetGlobalGenerator()
 	data1, ok := data.(tuple.IData)
 	if ok {
-		h.TupleCollector.SetLast(data.GetID(), data1.GetCurrentID())
-		id := h.GenerateID()
-		data1.SetCurrentID(id)
+		if len(data1.GetCurrentID()) > 0 && data1.GetCurrentID() != "0" {
+			h.TupleCollector.SetLast(data.GetID(), data1.GetCurrentID())
+		}
+		data1.SetCurrentID(gen.GenerateID())
 		if h.MasterGrouping != nil {
-			
 			h.MasterGrouping.Tuple(data1)
 		}
 	} else {
@@ -101,16 +120,6 @@ func (h *Handle) SetMasterGrouping(g group.IMasterGrouping) {
 // GetGrouping func
 func (h *Handle) GetMasterGrouping() group.IMasterGrouping {
 	return h.MasterGrouping
-}
-
-// GetSerial func
-func (h *Handle) GetSerial() int {
-	return h.Serial
-}
-
-// SetSerial func
-func (h *Handle) SetSerial(serial int) {
-	h.Serial = serial
 }
 
 // SetAddr func

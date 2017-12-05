@@ -34,13 +34,11 @@ func NewAckerBolt(name, node string) *AckerBolt {
 
 // Prepare func
 func (b *AckerBolt) Prepare() {
-	fmt.Println("bolt prepare")
 }
 
 // Run func
 func (b *AckerBolt) Run() {
 	for {
-
 		data := <-b.Inchan
 		b.Execute(data)
 	}
@@ -49,13 +47,21 @@ func (b *AckerBolt) Run() {
 // Execute func
 func (b *AckerBolt) Execute(data tuple.IID) {
 	if d, ok := data.(*AckerBegin); ok {
-		iid, err := strconv.ParseInt(d.CurrentID, 10, 64)
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			acker := NewAckerData(d.GetID(), d.Addr)
-			acker.Result = iid
-			b.Ackers[d.GetID()] = acker
+		if iid, err := strconv.ParseInt(d.CurrentID, 10, 64); err == nil {
+			if v, ok := b.Ackers[data.GetID()]; ok {
+
+				val := v.Result ^ iid
+				b.Ackers[data.GetID()].Result = val
+				if val == 0 {
+					fmt.Println("--------------------消息处理完成-------------------", data.GetID())
+					d2 := NewAckerResult(data.GetID(), Succeeded)
+					b.SendData(v.Addr, d2)
+				}
+			} else {
+				acker := NewAckerData(d.GetID(), d.Addr)
+				acker.Result = iid
+				b.Ackers[d.GetID()] = acker
+			}
 		}
 	} else if d1, ok1 := data.(*Acker); ok1 {
 		if v, ok := b.Ackers[d1.GetID()]; ok {
@@ -73,6 +79,7 @@ func (b *AckerBolt) Execute(data tuple.IID) {
 			delete(b.Ackers, data.GetID())
 		}
 	}
+
 }
 
 // AddSender func

@@ -16,7 +16,6 @@ type Sentencespout struct {
 
 // NewSentencespout func
 func NewSentenceSpout(name, node string) *Sentencespout {
-	//Sentencespout{Query: make(chan IID, 10), Base: 0, Name: "Sentencespout"}
 	s := &Sentencespout{}
 	spout := topology.NewSpout(name, node)
 	s.Spout = *spout

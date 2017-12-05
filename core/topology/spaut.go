@@ -14,9 +14,7 @@ type ISpout interface {
 	Launch()
 	SetAckerReciever(reciever *AckerResultReciever)
 	AddPending(data tuple.IID)
-	// GetHanderChan()
 	GetQueue() chan tuple.IID
-	//DeclareOutputFields() *Fields
 }
 
 // Spout struct
@@ -55,7 +53,8 @@ func NewPendingData(data tuple.IID) *PendingData {
 
 // NextTuple func
 func (s *Spout) NextTuple(data tuple.IID) {
-	data.SetID(s.GenerateID())
+	g := GetGlobalGenerator()
+	data.SetID(g.GenerateID())
 	s.Emmitter(data)
 	s.AddPending(data)
 	s.TupleCollector.Acker(data)

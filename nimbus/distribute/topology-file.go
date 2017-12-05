@@ -98,7 +98,6 @@ func (t *JSONFileData) WriteTopology(topology string, storm string) {
 	client.Set(key1, storm)
 	key1 = key + "/spouts/"
 	Spouts := t.Spouts
-	fmt.Println("Spouts", Spouts)
 	for _, v := range Spouts {
 		k := key1 + v.Name
 		if b, err2 := json.Marshal(v); err2 == nil {

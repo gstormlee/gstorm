@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path"
 
@@ -20,7 +19,6 @@ func download(name string) {
 			panic(err)
 		}
 		dir := path.Dir(name)
-		fmt.Println("dir", dir)
 		os.MkdirAll(dir, 0777)
 		key := "/topology/" + name + "/file"
 		files, err2 := data.EtcdClient.Get(key)

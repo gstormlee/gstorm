@@ -43,7 +43,6 @@ func (e *Etcd) Connect() {
 }
 
 func (e *Etcd) Mkdir(dir string) error {
-	fmt.Println("enter")
 	o := client.SetOptions{Dir: true}
 	_, err := e.KeysApi.Set(context.Background(), dir, "", &o)
 	if err != nil {

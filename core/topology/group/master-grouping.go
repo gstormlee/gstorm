@@ -2,7 +2,6 @@ package group
 
 import (
 	"fmt"
-	"reflect"
 
 	"github.com/gstormlee/gstorm/core/tuple"
 )
@@ -37,7 +36,6 @@ func NewMasterGrouping() *MasterGrouping {
 func (mg MasterGrouping) Run() {
 	for {
 		msg := <-mg.InChan
-		fmt.Println(reflect.TypeOf(mg.Sub))
 		if val, ok := mg.Sub.(IMasterGrouping); ok {
 			val.GroupingMessage(msg)
 		} else {
@@ -53,7 +51,6 @@ func (mg MasterGrouping) Run() {
 
 // Tuple func
 func (mg *MasterGrouping) Tuple(msg tuple.IID) {
-	fmt.Println("master grouping tuple", msg)
 	mg.InChan <- msg
 }
 

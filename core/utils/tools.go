@@ -76,16 +76,12 @@ func (p *Port) GetLocalPort(name string, client *etcd.Client) (int, error) {
 		if err3 != nil {
 			return 0, err3
 		}
-		fmt.Printf("3333333333pre port%d\n", serial)
 		serial++
 		str := strconv.Itoa(serial)
-		fmt.Printf("444444444set addr%s", str)
 		client.Set(key, str)
-		fmt.Println("22222222222get addr =", str, serial)
 		return serial, nil
 	} else if len(vals) == 0 {
 		client.Set(key, "10001")
-		fmt.Println("11111111111111get addr = ", "10001")
 		return 10001, nil
 	}
 	return 0, errors.New("can not found key")

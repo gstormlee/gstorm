@@ -136,7 +136,8 @@ func (t *Topology) Start(name string) {
 		fmt.Println("create serial error:", err)
 		return
 	}
-	t.Serial = serial
+	gen := GetGlobalGenerator()
+	gen.SetSerial(serial)
 	fmt.Println("serial", serial)
 
 	key := "/distribute/" + t.TopologyName + "/" + t.ServerName
@@ -356,11 +357,9 @@ func (t *Topology) CreateNode(node *Node) {
 	if worker == nil {
 		fmt.Printf("fatal error:create node %s is nil\n", node.Name)
 	}
-	worker.SetSerial(t.Serial)
+
 	t.CreatedWorkers = append(t.CreatedWorkers, worker)
-	if node.NType != "acker" {
-		worker.SetSerial(t.Serial)
-	}
+
 	if s, ok := worker.(ISpout); ok {
 		r := t.CreateAckerResultReciever(node, worker)
 		r.SetQueue(s.GetQueue())

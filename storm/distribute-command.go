@@ -49,7 +49,6 @@ func distributeFunc(cmd *cobra.Command, args []string) {
 		UploadDir := path.Join(userInfo.HomeDir, "distribute")
 
 		newPath := filepath.Join(UploadDir, stormFile)
-		fmt.Println("----dir---------", UploadDir, stormFile, newPath)
 		err := os.MkdirAll(newPath, 0777)
 		if err == nil {
 			path1 := filepath.Join(newPath, stormFile)

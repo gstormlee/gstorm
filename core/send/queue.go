@@ -2,8 +2,6 @@ package send
 
 import (
 	"encoding/json"
-	"fmt"
-	"reflect"
 
 	"github.com/gstormlee/gstorm/core/tuple"
 )
@@ -45,14 +43,11 @@ func NewQueue(outchan chan tuple.IID, factory IMessageFactory) *Queue {
 
 // PushData func
 func (q *Queue) PushData(data Message, r *Replay) error {
-	fmt.Printf("******((((((((((((recieve data )))))))))))%v\n", data)
 	var message tuple.IID
 	for _, f := range q.Factories.Factories {
 		message = f.Create(data)
 		if message != nil {
-
 			json.Unmarshal([]byte(data.Data), &message)
-			fmt.Printf("recieve data %v, type = %v\n", message, reflect.TypeOf(message))
 			q.outchan <- message
 			break
 		}

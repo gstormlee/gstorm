@@ -57,7 +57,6 @@ func (c *Client) Send(data tuple.IID) {
 		str := a[len(a)-1]
 		d.DataType = str
 		d.Data = string(b[:])
-		fmt.Printf("data is %v, Data = %s\n", d, d.Data)
 		err := c.Client.Call(context.Background(), "Queue.PushData", d, &r)
 		fmt.Println(err)
 	}

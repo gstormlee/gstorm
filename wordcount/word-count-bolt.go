@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -33,7 +32,8 @@ func (w *WordCountBolt) Execute(data tuple.IID) {
 			w.words[d.Word] = 0
 		}
 		w.words[d.Word]++
-		w.TupleCollector.SetLast(d.GetID(), "0")
+		w.TupleCollector.SetLast(d.GetID(), d.GetCurrentID())
+		d.SetCurrentID("0")
 		w.TupleCollector.Acker(d)
 		go w.Save()
 	}
@@ -42,9 +42,7 @@ func (w *WordCountBolt) Execute(data tuple.IID) {
 // NewWordCountBolt name machine name
 func NewWordCountBolt(name, node string) *WordCountBolt {
 	b := &WordCountBolt{}
-
 	bolt := topology.NewBolt(name, node)
-
 	b.Bolt = *bolt
 	return b
 }
