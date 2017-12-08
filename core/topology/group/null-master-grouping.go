@@ -13,7 +13,6 @@ type NullMasterGrouping struct {
 func NewNullMasterGrouping() *NullMasterGrouping {
 	mg := &NullMasterGrouping{}
 	mg.MasterGrouping = *NewMasterGrouping()
-	mg.MasterGrouping.Sub = mg
 	return mg
 }
 

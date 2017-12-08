@@ -11,7 +11,6 @@ type AllMasterGrouping struct {
 func NewAllMasterGrouping() *AllMasterGrouping {
 	mg := &AllMasterGrouping{}
 	mg.MasterGrouping = *NewMasterGrouping()
-	mg.MasterGrouping.Sub = mg
 	return mg
 }
 

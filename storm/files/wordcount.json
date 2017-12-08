@@ -44,5 +44,8 @@
     "name": "AckerBolt",
     "num": 1,
     "type": "acker"
-  }
+  },
+  "config" :{"AckerBoltTimeOut":30}
+    
+      
 }

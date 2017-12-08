@@ -362,26 +362,29 @@ func (t *Topology) CreateNode(node *Node) {
 
 	if s, ok := worker.(ISpout); ok {
 		r := t.CreateAckerResultReciever(node, worker)
-		r.SetQueue(s.GetQueue())
+		go r.Run()
+		// r.SetQueue(s.GetQueue())
 		s.SetAckerReciever(r)
+		if s1, ok1 := s.(IHandle); ok1 {
+			s1.SetAddr(r.Addr)
+		}
 	} else {
 		t.CreateReciever(node, worker)
 	}
 	if node.MasterGrouping != nil {
 		mg := t.CreateMasterGrouping(node)
-		if mg != nil {
-			mg.Lanuch()
+		runner := mg.CreateRunner()
+		if runner != nil && mg != nil {
+			go runner.Run(mg)
 			worker.SetMasterGrouping(mg)
 		}
 	}
-	bolt, ok1 := worker.(IBolt)
-	if ok1 {
+	if bolt, ok1 := worker.(IBolt); ok1 {
 		bolt.Prepare()
 		go bolt.Run()
 		return
-	}
-	value, ok := worker.(ISpout)
-	if ok {
+	} else if value, ok := worker.(ISpout); ok {
+		fmt.Println("want start")
 		t.Starts = append(t.Starts, value)
 		if len(t.Starts) == len(t.StartNodes) {
 			t.StartCommand()
@@ -447,7 +450,7 @@ func (t *Topology) CreateAckerResultReciever(worker *Node, node IHandle) *AckerR
 	}
 	//gstorm.EtcdClient.Set(key, addr)
 	r := NewAckerResultReciever(addr)
-	go r.ListenAndServe(node.GetInchan())
+	go r.ListenAndServe(r.GetInChan())
 	return r
 }
 
@@ -468,7 +471,7 @@ func (t *Topology) StartCommand() {
 		files["1"] = str.HomeDir + "/my.txt"
 		node.Open(files)
 		go node.Run()
-		node.Launch()
+		//node.Launch()
 	}
 }
 

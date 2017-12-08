@@ -15,6 +15,12 @@ type JSONFileData struct {
 	Spouts   []*Node `json:"spouts"`
 	Bolts    []*Node `json:"bolts, omitempty"`
 	Acker    *Node   `json:"acker,omitempty"`
+	Config   *Config `json:"config, omitempty"`
+}
+
+// Config struct
+type Config struct {
+	AckerBoltTimeOut int
 }
 
 // GetSpout func
@@ -132,7 +138,6 @@ func (JSON *JSONFileData) Distribute() error {
 	var nodes []*Node
 	for _, spout := range JSON.Spouts {
 		for j := 1; j <= spout.Num; j++ {
-			//str := strconv.Itoa(j)
 			node := NewNode(spout, j)
 			nodes = append(nodes, node)
 			fmt.Println("worker", node)
@@ -155,7 +160,6 @@ func (JSON *JSONFileData) Distribute() error {
 
 	Supervisors := data.Supervisors.List()
 	count := len(Supervisors)
-	//fmt.Println("count", len(Nodes), count)
 	i := 0
 	for _, node := range nodes {
 		i++

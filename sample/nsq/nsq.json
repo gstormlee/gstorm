@@ -1,0 +1,6 @@
+{"name":"nsq",
+    "start":"NsqSpout",
+    "Spout":[{"name":"NsqSpout","num":1, "grouping":"ShuffleGrouping", "next":"PrintBolt", "ntype":"Spout", "field":"null"}],
+   "PrintBolt":{"num":1, "grouping":"null", "next":"end", "ntype":"bolt", "field":"null"},
+    "acker":{"name":"AckerBolt", "num":1, "grouping":"null", "ntype":"acker", "next":"end", "field":"null"}
+}

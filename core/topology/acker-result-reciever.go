@@ -1,6 +1,7 @@
 package topology
 
 import (
+	"sync"
 	"github.com/gstormlee/gstorm/core/tuple"
 )
 
@@ -9,14 +10,16 @@ type AckerResultReciever struct {
 	Addr   string
 	Server *AckerServer
 	inchan chan tuple.IID
-	Datas  map[string]tuple.IID
+	Datas  sync.Map
+	//Datas  map[string]tuple.IID
 
 	Queue chan tuple.IID
 }
 
-// NewReciever func
+// NewAckerResultReciever  func
 func NewAckerResultReciever(addr string) *AckerResultReciever {
 	reciever := new(AckerResultReciever)
+	reciever.Addr = addr
 	reciever.Server = NewAckerServer(addr)
 	reciever.inchan = make(chan tuple.IID, 10)
 	return reciever
@@ -33,13 +36,15 @@ func (r *AckerResultReciever) Run() {
 		data := <-r.inchan
 		acker, ok := data.(*AckerResult)
 		if ok {
-			if v, ok1 := r.Datas[data.GetID()]; ok1 {
+			if v, ok1 := r.Datas.Load(data.GetID()); ok1 {
 				switch acker.Result {
 				case Succeeded:
-					delete(r.Datas, data.GetID())
+					fmt.Println("消息处理完成", data.GetID())
+					r.Datas.Delete(data.GetID())
 					break
 				case Failed:
-					r.Queue <- v
+					fmt.Println(v)
+					//r.Queue <- v
 					break
 				}
 			}
@@ -47,9 +52,14 @@ func (r *AckerResultReciever) Run() {
 	}
 }
 
+func (r *AckerResultReciever) GetInChan() chan tuple.IID {
+	return r.inchan
+}
+
 // AckerMessage func
 func (r *AckerResultReciever) AckerMessage(data tuple.IID) {
-	r.Datas[data.GetID()] = data
+
+	r.Datas.Store(data.GetID(), data)
 }
 
 // SetQueue func
